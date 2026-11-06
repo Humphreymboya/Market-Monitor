@@ -1,0 +1,67 @@
+================================================================================================
+FRAME 1d_rep: 26 pairs. Suspicious bar = range > 10x that pair's
+own trailing 60-bar median range. The threshold is deliberately crude; see the
+docstring for why nothing auto-corrects these.
+================================================================================================
+
+1. CENSUS: 214 bars of 158,017 exceed 10x their own median range = 0.14% of the frame
+
+pair      suspects  %ofpair  median day   worst bar   worst range
+EURCHF          21    0.34%       0.38%  2009-03-23         28.0%
+EURGBP          16    0.22%       0.60%  2008-03-17         99.5%
+GBPCHF          16    0.27%       0.63%  2006-08-30         27.7%
+NZDUSD          14    0.24%       0.81%  2009-10-26         49.0%
+EURUSD          11    0.18%       0.62%  2009-10-26         42.4%
+GBPUSD          11    0.18%       0.64%  2009-10-28         59.6%
+GBPCAD          11    0.18%       0.67%  2009-10-26          8.9%
+USDCAD          10    0.17%       0.60%  2009-10-09          1.9%
+USDCHF           9    0.15%       0.67%  2009-10-26         28.4%
+NZDJPY           9    0.15%       0.89%  2009-10-28          9.6%
+AUDCHF           9    0.15%       0.78%  2005-08-29         29.2%
+AUDUSD           8    0.15%       0.80%  2009-10-26         17.1%
+AUDJPY           8    0.13%       0.87%  2009-10-28         10.4%
+EURJPY           7    0.11%       0.72%  2009-10-28          8.2%
+EURAUD           7    0.12%       0.70%  2009-10-02         17.6%
+CHFJPY           7    0.12%       0.70%  2009-10-29         37.4%
+NZDCAD           7    0.12%       0.75%  2004-10-04         69.6%
+CADJPY           6    0.10%       0.81%  2009-10-28          4.5%
+AUDCAD           6    0.10%       0.67%  2004-10-04         69.6%
+GBPJPY           5    0.08%       0.77%  2009-10-29         13.7%
+CADCHF           4    0.07%       0.73%  2009-10-09         26.3%
+EURCAD           4    0.07%       0.64%  2009-10-09          1.8%
+AUDNZD           3    0.05%       0.55%  2006-07-07         10.3%
+USDJPY           2    0.03%       0.72%  2009-09-25          3.5%
+GBPNZD           2    0.03%       0.78%  2009-10-23          3.5%
+USDSGD           1    0.02%       0.37%  2024-11-27         12.0%
+
+2. FALSE POSITIVES - known-real dislocations tested against the SAME 10x rule
+pair     date          range  its median   ratio   event
+EURCHF   2015-01-15    28.0%       0.10%    272x   FLAGGED: SNB removed the EUR floor; franc +20% intraday
+CHFJPY   2015-01-15    37.4%       0.76%     49x   FLAGGED: same event, the yen leg of it
+GBPUSD   2016-06-24     9.5%       0.79%     12x   FLAGGED: Brexit referendum, cable gaps open 8%
+EURGBP   2016-06-24     7.5%       0.71%     11x   FLAGGED: same vote, the cross re-rating
+AUDJPY   2008-10-24    17.9%       2.85%      6x   clean   : global financial crisis liquidation, carry unwind
+
+   4 of 5 real events on that list are caught by the same threshold that
+   catches the EURGBP typo. So 'wide relative to its own neighbours' is not a test
+   for fabrication - it is a test for volatility, and the two cannot be separated by a
+   rolling statistic. A clamp that removes the typo removes Brexit and the SNB
+   decapitation with it, and a frame with its tail sanded out would flatter every
+   stop-loss in this project. Hence: reported, not corrected.
+
+3. SENSITIVITY - edge with the suspects clipped, which also clips the real crashes
+frame                                   n      wr       exp     pf
+as shipped (no clipping)             4358   68.3%   +0.0156   1.05
+clipped at 10x median                4568   68.3%   +0.0163   1.05
+clipped at 6x median                 4594   68.4%   +0.0123   1.04
+clipped at 4x median                 4590   68.4%   +0.0123   1.04
+
+4. ZOMBIE POSITIONS on the shipped frame - open, stop >5% of price, unresolvable: 3
+   EURGBP   stop is 29.2% of price, held 4,852 bars (19.3 years) and counting
+   USDCHF   stop is 7.2% of price, held 405 bars (1.6 years) and counting
+   CADCHF   stop is 6.6% of price, held 405 bars (1.6 years) and counting
+
+   Each one blocks its pair from every later signal, so the trade count, the per-pair
+   table and the leave-one-pair-out test in log_champion.txt are all measured on a book
+   where some pairs have been silently out of service since the bar that poisoned their
+   ATR. EURGBP has been out for nineteen of the twenty-two years being reported on.

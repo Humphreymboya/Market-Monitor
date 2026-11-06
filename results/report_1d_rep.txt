@@ -1,0 +1,67 @@
+==============================================================================
+STRATEGY  rsi2_mr
+PARAMS    {"adx_max": 0, "buy_th": 10, "exit_sma": 5, "rsi_n": 2, "trend": 200}
+EXITS     {"atr_mult": 2.0, "max_bars": 0, "rr": 1.0, "trail_atr": 0.0}
+TIMEFRAME 1d_rep | 26 pairs | costs: real spread + slippage per pair
+==============================================================================
+window            trades    win%     PF     E[R]   maxDD  Sharpe  pips/trade   tr/yr
+------------------------------------------------------------------------------
+in-sample           6625    56.9   0.92  -0.0187    4.1%   -0.19        -3.2   231.1
+OUT-OF-SAMPLE        399    62.7   1.17  +0.0297    0.2%    0.61         6.5   296.2
+everything          7023    57.2   0.93  -0.0160    4.1%   -0.16        -2.6   234.0
+
+avg win +0.37R | avg loss -0.54R | payoff 0.69
+
+PER-PAIR (out-of-sample):
+  pair  n   wr   pf    exp  avg_pips  tot_pips  avg_bars
+EURJPY 15 86.7 4.79  0.303      66.6     999.0       3.7
+CADJPY 15 80.0 6.13  0.286      55.5     832.0       3.5
+AUDNZD 17 82.4 3.15  0.192      29.8     506.0       3.5
+USDJPY 12 83.3 6.03  0.182      45.6     548.0       4.7
+CADCHF 15 66.7 3.59  0.162      11.9     179.0       3.7
+AUDCAD 14 71.4 3.42  0.160      22.5     315.0       3.2
+USDSGD 14 78.6 3.50  0.148      16.8     236.0       3.9
+CHFJPY 17 64.7 1.69  0.120      30.8     524.0       2.6
+EURCAD 14 64.3 2.96  0.112      19.9     279.0       3.3
+EURUSD 14 78.6 1.76  0.105      19.2     269.0       3.9
+EURGBP 13 69.2 1.57  0.081       5.9      77.0       3.2
+GBPJPY 17 47.1 1.49  0.071      16.7     285.0       2.9
+EURAUD 15 60.0 1.56  0.067       6.8     102.0       4.5
+USDCHF 19 68.4 1.46  0.046       6.2     118.0       3.5
+AUDCHF 16 62.5 1.17  0.029      -0.4      -7.0       3.4
+GBPCHF 13 46.2 1.06  0.014      -2.4     -32.0       3.7
+NZDCAD 13 53.8 1.04  0.009       4.0      51.0       3.7
+AUDUSD 16 62.5 1.04  0.008       2.1      34.0       4.1
+GBPNZD 16 68.8 0.96 -0.010      -2.4     -39.0       3.3
+NZDJPY 18 61.1 0.82 -0.047      -6.4    -116.0       3.8
+AUDJPY 16 56.2 0.79 -0.066     -14.7    -235.0       3.1
+GBPCAD 16 56.2 0.53 -0.101     -17.6    -281.0       2.6
+EURCHF 11 54.5 0.60 -0.137     -13.1    -144.0       3.5
+NZDUSD 19 42.1 0.38 -0.169     -17.3    -329.0       3.9
+GBPUSD 16 43.8 0.30 -0.195     -35.7    -571.0       3.4
+USDCAD 18 33.3 0.12 -0.433     -55.3    -995.0       4.3
+
+WIN-RATE vs PAYOFF (same entries, target swept; null = what a coin flip earns):
+  rr    n   wr  wr_null  excess   exp_R   pf
+0.30 7870 65.1     76.9   -11.8 -0.0180 0.90
+0.50 7188 58.8     66.7    -7.8 -0.0165 0.93
+0.75 7044 57.3     57.1     0.2 -0.0162 0.93
+1.00 7023 57.2     50.0     7.2 -0.0160 0.93
+1.50 7018 57.2     40.0    17.2 -0.0157 0.93
+2.00 7016 57.2     33.3    23.8 -0.0150 0.93
+3.00 7015 57.2     25.0    32.2 -0.0143 0.94
+
+How to read this: win rate alone is not an edge. At target = 0.5R a random walk
+already wins ~67% of the time. 'excess' above the null column
+is the only part that is skill; expectancy in R is what pays the bills.
+
+BARRIER TEST - same entries, exits restricted to stop/target, three disjoint eras
+(answers: does this entry pick DIRECTION better than a driftless walk, repeatedly?)
+      era    n   wr  excess     z   exp_R   pf    dd
+2004-2011 1681 51.9     1.9  1.59  0.0601 1.12 0.010
+2011-2018 1419 46.2    -3.8 -2.89 -0.0908 0.83 0.029
+2018-2026 1838 49.3    -0.7 -0.61 -0.0308 0.94 0.025
+pooled: n=4938 wr=49.3% excess=-0.7pt z=-1.00 | worst-era z=-2.89 (multiple-comparison bar for this much searching: z >= 3.9)
+null at this payoff = 50.0%; excess <= 0 means the win rate is the payoff, not skill
+
+chart: C:\Users\Administrator\Documents\Qoder\2026-11-05\88046cef\forex-lab\lab\..\results\report_1d_rep.png

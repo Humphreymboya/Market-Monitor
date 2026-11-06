@@ -1,0 +1,152 @@
+note: 1d_rep = 23y vendor daily, envelope-repaired; ranges still ~1-5 pips narrower than hourly-derived truth (power frame, not the fidelity frame)
+========================================================================================================
+SYSTEM   bb_fade {"adx_max": 0, "bb_n": 30, "k": 1.5, "rsi_buy": 40, "trend": 0}
+EXITS    {"atr_mult": 4.0, "max_bars": 0, "rr": 0.5, "trail_atr": 0.0, "use_exit_sig": false}
+         stop = 4.0 x ATR(14) from the fill, target = 0.5 x that distance, no time stop, no trail, no signal exit
+FRAME    1d_rep: 26 pairs, real per-pair spread + 2x slippage, 0.5% of equity risked per trade
+========================================================================================================
+
+1. WALK-FORWARD - eight non-overlapping out-of-sample folds, nothing refitted inside them
+
+            fold   n   wr  excess  se     exp   pf    dd   tpy
+2007-01..2009-07 592 62.5    -4.2 1.9 -0.0528 0.85 0.016 237.0
+2009-07..2012-01 528 65.9    -0.8 2.1  0.0040 1.01 0.005 211.0
+2012-01..2014-07 461 66.8     0.1 2.2  0.0098 1.03 0.005 185.0
+2014-07..2017-01 490 66.3    -0.3 2.1  0.0077 1.02 0.005 196.0
+2017-01..2019-07 475 67.4     0.7 2.2  0.0242 1.08 0.004 191.0
+2019-07..2022-01 474 67.7     1.1 2.2  0.0159 1.05 0.006 189.0
+2022-01..2024-07 479 71.4     4.7 2.2  0.0796 1.29 0.004 193.0
+2024-07..2025-07 218 65.1    -1.5 3.2  0.0134 1.04 0.003 219.0
+
+   folds with positive expectancy: 7/8   folds with win rate >= 65%: 7/8   worst fold exp: -0.0528R
+   note: a 5-month fold holds ~250 trades, so its own win-rate standard error is 2.2 points -
+   a fold printing 64% is statistically the same process as one printing 69%. The pooled number is the estimate.
+
+2. THREE DISJOINT ERAS - barrier-only hit rate against the gambler's-ruin null
+
+      era    n   wr  excess    z   exp_R   pf    dd
+2004-2011 1617 67.0     0.4 0.32 -0.0070 0.98 0.017
+2011-2018 1109 67.8     1.1 0.81  0.0131 1.04 0.005
+2018-2026 1638 69.5     2.9 2.46  0.0399 1.13 0.006
+   pooled n=4364 wr=68.2% excess=+1.5pt z=+2.11 | worst-era z=+0.32
+
+3. HOLDOUT - 2025-07-01 onward, never read by any search, gate or sweep in this project
+
+   n=271 wr=70.1% (null 66.7%, excess +3.4pt) exp=+0.0684R pf=1.26 maxDD=0.003 avg=34.7 pips/trade
+   this is the only window in this file that no decision in this project depended on. It is positive.
+
+4. COST LADDER - same trades, spread and slippage scaled together
+
+                  regime    n   wr   exp_R   pf  ann_pct
+zero cost (gross signal) 4358 68.3  0.0232 1.07     1.69
+             half retail 4358 68.3  0.0194 1.06     1.41
+         modelled retail 4358 68.3  0.0156 1.05     1.13
+               2x retail 4358 68.3  0.0079 1.02     0.58
+               3x retail 4358 68.3  0.0003 1.00     0.02
+               4x retail 4358 68.3 -0.0074 0.98    -0.53
+
+   the gross column is the size of the signal; the retail column is what a retail account keeps.
+   breakeven win rate at 0.5R = (1 + cost_in_R)/1.5, so every point of spread moves the bar you must clear.
+
+5. LEAVE-ONE-PAIR-OUT - full history, one pair deleted at a time
+
+   with all 26 pairs:      exp +0.0156R   wr 68.3%
+   worst after deleting a pair: exp +0.0117R   wr 68.1%   best +0.0203R
+   pairs whose removal turns expectancy negative: none
+   no single pair is load-bearing.
+
+   PER-PAIR (whole history):
+  pair   n   wr   pf    exp  avg_pips  tot_pips  avg_bars
+GBPJPY 175 74.3 1.42  0.109      78.4   13715.0      24.2
+CADJPY 186 72.0 1.26  0.074      22.4    4160.0      20.6
+EURAUD 167 71.9 1.25  0.070      29.9    4987.0      26.8
+GBPCAD 171 70.8 1.23  0.066      29.6    5061.0      24.7
+EURGBP  69 71.0 1.23  0.065      10.0     692.0      92.2
+EURJPY 183 69.9 1.16  0.047      29.5    5397.0      22.9
+USDCAD 190 70.0 1.12  0.036      23.7    4499.0      21.7
+USDCHF 177 68.9 1.10  0.031       2.5     450.0      23.6
+CADCHF 147 68.7 1.09  0.028      16.3    2397.0      30.4
+CHFJPY 156 69.2 1.09  0.027      -0.4     -59.0      27.1
+AUDJPY 190 68.4 1.08  0.024      19.2    3650.0      21.9
+NZDJPY 189 68.8 1.07  0.022      15.4    2903.0      22.2
+GBPCHF 140 67.9 1.07  0.021      10.7    1500.0      33.9
+AUDNZD 187 68.4 1.06  0.018      10.4    1942.0      24.7
+AUDCHF 156 67.9 1.06  0.018      11.5    1795.0      27.3
+AUDUSD 158 67.1 1.05  0.017      17.1    2707.0      24.2
+EURUSD 172 66.9 1.03  0.011       7.6    1311.0      26.4
+EURCAD 160 67.5 1.03  0.010      11.7    1867.0      27.7
+USDJPY 244 67.2 1.02  0.008       8.0    1952.0      22.9
+GBPUSD 136 66.2 1.00  0.000      13.4    1827.0      34.1
+GBPNZD 179 66.5 0.99 -0.004     -17.9   -3198.0      23.6
+EURCHF 156 66.0 0.95 -0.019      -1.6    -255.0      28.6
+NZDUSD 159 64.8 0.89 -0.039     -26.0   -4137.0      28.6
+AUDCAD 161 69.6 0.86 -0.058     -14.5   -2338.0      26.9
+USDSGD 187 63.1 0.84 -0.061     -18.2   -3397.0      24.2
+NZDCAD 163 63.8 0.75 -0.107     -53.2   -8677.0      27.5
+
+6. MONTE-CARLO - the same trades in 3,000 different orders, 0.5% risk
+
+   trades=4358 mean=+0.0156R sd=0.761 win%=68.3 avgWin=+0.498R avgLoss=-1.025R
+   maxDD p50=18.1% p95=26.8% p99=30.3% P(dd>50%)=0.00% P(dd>80%)=0.00%
+   a 0.5%-risk system with +0.015R expectancy has a long, flat path. The drawdown is not the risk here - the risk is that the edge is not there.
+
+7. PARAMETER PLATEAU - neighbours in the grid, same history
+
+k       1.25    1.50    1.75
+bb_n                        
+15    0.0129  0.0156  0.0107
+20    0.0144  0.0094  0.0080
+25    0.0135  0.0123  0.0175
+30    0.0166  0.0156  0.0162
+40    0.0186  0.0144  0.0168
+
+   win rate:
+k     1.25  1.50  1.75
+bb_n                  
+15    68.1  68.3  68.0
+20    68.2  67.9  67.8
+25    68.2  68.1  68.5
+30    68.4  68.3  68.4
+40    68.5  68.3  68.3
+
+   15/15 neighbourhood cells positive; 15/15 positive AND >=65%
+
+equity chart: C:\Users\Administrator\Documents\Qoder\2026-11-05\88046cef\forex-lab\lab\..\results\champion_equity.png
+
+========================================================================================================
+SYSTEM   bb_fade {"adx_max": 0, "bb_n": 20, "k": 1.5, "rsi_buy": 35, "trend": 0}
+EXITS    {"atr_mult": 4.0, "max_bars": 0, "rr": 0.5, "trail_atr": 0.0, "use_exit_sig": false}
+         stop = 4.0 x ATR(14) from the fill, target = 0.5 x that distance, no time stop, no trail, no signal exit
+FRAME    1d_rep: 26 pairs, real per-pair spread + 2x slippage, 0.5% of equity risked per trade
+========================================================================================================
+
+1. WALK-FORWARD - eight non-overlapping out-of-sample folds, nothing refitted inside them
+
+            fold   n   wr  excess  se     exp   pf    dd   tpy
+2007-01..2009-07 524 63.2    -3.5 2.1 -0.0422 0.88 0.012 210.0
+2009-07..2012-01 460 66.7     0.1 2.2  0.0130 1.04 0.004 184.0
+2012-01..2014-07 408 65.7    -1.0 2.3 -0.0093 0.97 0.005 164.0
+2014-07..2017-01 431 65.4    -1.2 2.3  0.0007 1.00 0.005 172.0
+2017-01..2019-07 428 70.1     3.4 2.3  0.0501 1.17 0.003 172.0
+2019-07..2022-01 442 68.6     1.9 2.2  0.0270 1.09 0.006 177.0
+2022-01..2024-07 417 70.7     4.1 2.3  0.0700 1.25 0.004 168.0
+2024-07..2025-07 198 66.2    -0.5 3.4  0.0264 1.09 0.003 199.0
+
+   folds with positive expectancy: 6/8   folds with win rate >= 65%: 7/8   worst fold exp: -0.0422R
+   note: a 5-month fold holds ~250 trades, so its own win-rate standard error is 2.3 points -
+   a fold printing 64% is statistically the same process as one printing 69%. The pooled number is the estimate.
+
+2. THREE DISJOINT ERAS - barrier-only hit rate against the gambler's-ruin null
+
+      era    n   wr  excess    z   exp_R   pf    dd
+2004-2011 1427 66.9     0.2 0.15 -0.0114 0.97 0.015
+2011-2018  972 68.1     1.4 0.95  0.0187 1.06 0.005
+2018-2026 1489 70.0     3.3 2.71  0.0461 1.15 0.005
+   pooled n=3888 wr=68.4% excess=+1.7pt z=+2.25 | worst-era z=+0.15
+
+3. HOLDOUT - 2025-07-01 onward, never read by any search, gate or sweep in this project
+
+   n=227 wr=69.2% (null 66.7%, excess +2.5pt) exp=+0.0618R pf=1.23 maxDD=0.002 avg=21.1 pips/trade
+   this is the only window in this file that no decision in this project depended on. It is positive.
+
+wrote C:\Users\Administrator\Documents\Qoder\2026-11-05\88046cef\forex-lab\lab\..\results\chosen_strategy.json

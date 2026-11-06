@@ -1,0 +1,170 @@
+STRATEGY  bb_fade  {"adx_max": 0, "bb_n": 30, "k": 1.5, "rsi_buy": 40, "trend": 0}
+EXITS     {"atr_mult": 4.0, "max_bars": 0, "rr": 0.5, "trail_atr": 0.0, "use_exit_sig": false}
+TF 1d_rep | 26 pairs | account 10,000 USD | risk 0.5% per trade (50 USD)
+Last closed bar: 2026-11-05 00:00
+
+================================================================================================
+1. HOLDING - 24 position(s) whose barriers are still outstanding
+================================================================================================
+  EURGBP  SHORT  filled 2008-03-17 00:00 (4852 bars ago) at 0.78810
+     now 0.83406 -> -460 pips = -0.20R  |  stop 1.01809 is 1840 pips away  |  target is 1610 pips away
+     entry 0.78810   stop 1.01809 (2300 pips)   target 0.67311  [0.5R]
+     !!  DATA ARTEFACT: this stop is 29.2% of the price. No real barrier - ATR was inflated by a corrupt bar, so this position can never resolve. Do NOT trade it; and note the backtest counts it as still open too.
+     size needs 0.0016 lots - BELOW the 0.01-lot floor. Skip this one, or place 0.01 and risk $310 = 6.2x what you planned.
+
+  USDCHF  LONG   filled 2025-04-11 00:00 (405 bars ago) at 0.81806
+     now 0.81557 -> -25 pips = -0.05R  |  stop 0.75946 is 561 pips away  |  target is 318 pips away
+     entry 0.81806   stop 0.75946 (586 pips)   target 0.84736  [0.5R]
+     !!  DATA ARTEFACT: this stop is 7.2% of the price. No real barrier - ATR was inflated by a corrupt bar, so this position can never resolve. Do NOT trade it; and note the backtest counts it as still open too.
+     size needs 0.0070 lots - BELOW the 0.01-lot floor. Skip this one, or place 0.01 and risk $72 = 1.4x what you planned.
+
+  CADCHF  LONG   filled 2025-04-11 00:00 (405 bars ago) at 0.58955
+     now 0.58295 -> -66 pips = -0.18R  |  stop 0.55046 is 325 pips away  |  target is 261 pips away
+     entry 0.58955   stop 0.55046 (391 pips)   target 0.60910  [0.5R]
+     !!  DATA ARTEFACT: this stop is 6.6% of the price. No real barrier - ATR was inflated by a corrupt bar, so this position can never resolve. Do NOT trade it; and note the backtest counts it as still open too.
+     size 0.01 lots (1k base) | pip value $12.26/lot | spread 2.3 pips = 0.6% of your R
+
+  GBPUSD  SHORT  filled 2025-04-22 00:00 (400 bars ago) at 1.32732
+     now 1.34615 -> -188 pips = -0.33R  |  stop 1.38535 is 392 pips away  |  target is 479 pips away
+     entry 1.32732   stop 1.38535 (580 pips)   target 1.29830  [0.5R]
+     size needs 0.0086 lots - BELOW the 0.01-lot floor. Skip this one, or place 0.01 and risk $58 = 1.2x what you planned.
+
+  USDSGD  SHORT  filled 2026-03-09 00:00 (173 bars ago) at 1.27509
+     now 1.27780 -> -27 pips = -0.10R  |  stop 1.30419 is 264 pips away  |  target is 173 pips away
+     entry 1.27509   stop 1.30419 (291 pips)   target 1.26054  [0.5R]
+     size 0.02 lots (2k base) | pip value $7.83/lot | spread 2.4 pips = 0.8% of your R
+
+  GBPCAD  SHORT  filled 2026-06-15 00:00 (103 bars ago) at 1.87679
+     now 1.88328 -> -65 pips = -0.19R  |  stop 1.91341 is 301 pips away  |  target is 248 pips away
+     entry 1.87679   stop 1.91341 (366 pips)   target 1.85848  [0.5R]
+     size 0.02 lots (2k base) | pip value $7.15/lot | spread 2.5 pips = 0.7% of your R
+
+  USDJPY  LONG   filled 2026-07-31 00:00 (69 bars ago) at 157.69800
+     now 157.73599 -> +4 pips = +0.00R  |  stop 151.52324 is 621 pips away  |  target is 305 pips away
+     entry 157.69800   stop 151.52324 (617 pips)   target 160.78538  [0.5R]
+     size 0.01 lots (1k base) | pip value $6.34/lot | spread 1.2 pips = 0.2% of your R
+
+  GBPJPY  LONG   filled 2026-09-04 00:00 (44 bars ago) at 211.16200
+     now 212.32600 -> +116 pips = +0.15R  |  stop 203.60880 is 872 pips away  |  target is 261 pips away
+     entry 211.16200   stop 203.60880 (755 pips)   target 214.93860  [0.5R]
+     size 0.01 lots (1k base) | pip value $6.34/lot | spread 2.8 pips = 0.4% of your R
+
+  NZDJPY  LONG   filled 2026-09-04 00:00 (44 bars ago) at 91.90200
+     now 88.39200 -> -351 pips = -0.87R  |  stop 87.82135 is 57 pips away  |  target is 555 pips away
+     entry 91.90200   stop 87.82135 (408 pips)   target 93.94233  [0.5R]
+     size 0.02 lots (2k base) | pip value $6.34/lot | spread 3.0 pips = 0.7% of your R
+
+  CHFJPY  LONG   filled 2026-09-04 00:00 (44 bars ago) at 192.84970
+     now 193.37500 -> +53 pips = +0.07R  |  stop 185.70296 is 767 pips away  |  target is 305 pips away
+     entry 192.84970   stop 185.70296 (715 pips)   target 196.42307  [0.5R]
+     size 0.01 lots (1k base) | pip value $6.34/lot | spread 2.6 pips = 0.4% of your R
+
+  AUDJPY  LONG   filled 2026-09-09 00:00 (41 bars ago) at 110.89200
+     now 109.50600 -> -139 pips = -0.33R  |  stop 106.65814 is 285 pips away  |  target is 350 pips away
+     entry 110.89200   stop 106.65814 (423 pips)   target 113.00893  [0.5R]
+     size 0.02 lots (2k base) | pip value $6.34/lot | spread 2.4 pips = 0.6% of your R
+
+  AUDUSD  LONG   filled 2026-09-24 00:00 (30 bars ago) at 0.70048
+     now 0.69454 -> -59 pips = -0.32R  |  stop 0.68117 is 134 pips away  |  target is 156 pips away
+     entry 0.70048   stop 0.68117 (193 pips)   target 0.71013  [0.5R]
+     size 0.03 lots (3k base) | pip value $10.00/lot | spread 1.4 pips = 0.7% of your R
+
+  EURUSD  LONG   filled 2026-10-01 00:00 (25 bars ago) at 1.12488
+     now 1.12322 -> -17 pips = -0.08R  |  stop 1.10075 is 225 pips away  |  target is 137 pips away
+     entry 1.12488   stop 1.10075 (241 pips)   target 1.13695  [0.5R]
+     size 0.02 lots (2k base) | pip value $10.00/lot | spread 1.1 pips = 0.5% of your R
+
+  GBPCHF  SHORT  filled 2026-10-01 00:00 (25 bars ago) at 1.09599
+     now 1.09795 -> -20 pips = -0.08R  |  stop 1.12625 is 283 pips away  |  target is 171 pips away
+     entry 1.09599   stop 1.12625 (303 pips)   target 1.08086  [0.5R]
+     size 0.01 lots (1k base) | pip value $12.26/lot | spread 2.7 pips = 0.9% of your R
+
+  EURCHF  LONG   filled 2026-10-02 00:00 (24 bars ago) at 0.93194
+     now 0.91570 -> -162 pips = -0.69R  |  stop 0.90788 is 78 pips away  |  target is 283 pips away
+     entry 0.93194   stop 0.90788 (241 pips)   target 0.94397  [0.5R]
+     size 0.02 lots (2k base) | pip value $12.26/lot | spread 2.2 pips = 0.9% of your R
+
+  AUDCAD  LONG   filled 2026-10-02 00:00 (24 bars ago) at 0.99069
+     now 0.97129 -> -194 pips = -0.79R  |  stop 0.96577 is 55 pips away  |  target is 319 pips away
+     entry 0.99069   stop 0.96577 (249 pips)   target 1.00315  [0.5R]
+     size 0.03 lots (3k base) | pip value $7.15/lot | spread 1.9 pips = 0.8% of your R
+
+  EURCAD  LONG   filled 2026-10-19 00:00 (13 bars ago) at 1.58157
+     now 1.57082 -> -108 pips = -0.37R  |  stop 1.55147 is 193 pips away  |  target is 258 pips away
+     entry 1.58157   stop 1.55147 (301 pips)   target 1.59662  [0.5R]
+     size 0.02 lots (2k base) | pip value $7.15/lot | spread 2.4 pips = 0.8% of your R
+
+  EURJPY  LONG   filled 2026-10-23 00:00 (9 bars ago) at 175.90601
+     now 177.11200 -> +121 pips = +0.23R  |  stop 170.71465 is 640 pips away  |  target is 139 pips away
+     entry 175.90601   stop 170.71465 (519 pips)   target 178.50169  [0.5R]
+     size 0.02 lots (2k base) | pip value $6.34/lot | spread 2.0 pips = 0.4% of your R
+
+  AUDNZD  SHORT  filled 2026-10-29 00:00 (5 bars ago) at 1.24758
+     now 1.23864 -> +89 pips = +0.25R  |  stop 1.28263 is 440 pips away  |  target is 86 pips away
+     entry 1.24758   stop 1.28263 (351 pips)   target 1.23005  [0.5R]
+     size 0.03 lots (3k base) | pip value $5.61/lot | spread 2.2 pips = 0.6% of your R
+
+  NZDCAD  LONG   filled 2026-10-29 00:00 (5 bars ago) at 0.78752
+     now 0.78399 -> -35 pips = -0.17R  |  stop 0.76472 is 193 pips away  |  target is 149 pips away
+     entry 0.78752   stop 0.76472 (228 pips)   target 0.79892  [0.5R]
+     size 0.03 lots (3k base) | pip value $7.15/lot | spread 2.6 pips = 1.1% of your R
+
+  USDCAD  LONG   filled 2026-10-30 00:00 (4 bars ago) at 1.39712
+     now 1.39920 -> +21 pips = +0.07R  |  stop 1.37158 is 276 pips away  |  target is 107 pips away
+     entry 1.39712   stop 1.37158 (255 pips)   target 1.40989  [0.5R]
+     size 0.03 lots (3k base) | pip value $7.15/lot | spread 1.8 pips = 0.7% of your R
+
+  EURAUD  LONG   filled 2026-11-02 00:00 (3 bars ago) at 1.59891
+     now 1.61728 -> +184 pips = +0.38R  |  stop 1.55187 is 654 pips away  |  target is 52 pips away
+     entry 1.59891   stop 1.55187 (470 pips)   target 1.62243  [0.5R]
+     size 0.02 lots (2k base) | pip value $6.95/lot | spread 2.3 pips = 0.5% of your R
+
+  GBPNZD  SHORT  filled 2026-11-02 00:00 (3 bars ago) at 2.38624
+     now 2.40198 -> -157 pips = -0.27R  |  stop 2.44526 is 433 pips away  |  target is 452 pips away
+     entry 2.38624   stop 2.44526 (590 pips)   target 2.35673  [0.5R]
+     size 0.02 lots (2k base) | pip value $5.61/lot | spread 2.9 pips = 0.5% of your R
+
+  AUDCHF  LONG   filled 2026-11-04 00:00 (1 bars ago) at 0.57172
+     now 0.56623 -> -55 pips = -0.24R  |  stop 0.54780 is 184 pips away  |  target is 174 pips away
+     entry 0.57172   stop 0.54780 (239 pips)   target 0.58368  [0.5R]
+     size 0.02 lots (2k base) | pip value $12.26/lot | spread 2.4 pips = 1.0% of your R
+
+================================================================================================
+2. NEW SIGNAL on the most recent closed bar, not yet filled - 0
+================================================================================================
+  nothing fired on the last closed bar, and that is the normal state. This
+  system takes a position roughly twice a year per pair and holds it until a
+  barrier is reached. Do not manufacture a trade to feel busy.
+
+================================================================================================
+3. RESOLVED within the last 15 bars - 10 trade(s) on 9 pair(s)
+================================================================================================
+  USDCAD  SHORT closed 2026-10-30 00:00 after  26 bars -> +0.49R (+132 pips) [target]
+  EURJPY  LONG  closed 2026-10-23 00:00 after  34 bars -> -1.00R (-597 pips) [stop]
+  CADJPY  LONG  closed 2026-11-04 00:00 after  40 bars -> +0.49R (+213 pips) [target]
+  AUDNZD  SHORT closed 2026-10-28 00:00 after  38 bars -> -1.01R (-312 pips) [stop]
+  AUDCHF  LONG  closed 2026-10-28 00:00 after   7 bars -> +0.48R (+91 pips) [target]
+  EURAUD  LONG  closed 2026-10-28 00:00 after   8 bars -> -1.01R (-408 pips) [stop]
+  EURAUD  LONG  closed 2026-11-02 00:00 after   2 bars -> +0.49R (+205 pips) [target]
+  EURCAD  LONG  closed 2026-10-19 00:00 after  30 bars -> -1.01R (-244 pips) [stop]
+  GBPNZD  SHORT closed 2026-11-02 00:00 after  36 bars -> -1.01R (-569 pips) [stop]
+  NZDCAD  LONG  closed 2026-10-28 00:00 after  38 bars -> -1.02R (-232 pips) [stop]
+
+NOTE: quotes are delayed consumer data, not a broker feed. The entry shown for a
+      NEW signal is the last closed bar's price; the real fill is the next bar's
+      open. Place a limit at the level the rules specify and let the broker tell
+      you the truth.
+NOTE: measured expectancy is +0.015R a trade. At 0.5% risk that is 0.008% of
+      equity a trade, roughly +1%/year over ~130 trades a year across the book.
+      This is a thin edge, not a paycheck, and it did not clear the significance
+      bar for the amount of searching it took to find.
+NOTE: the backtest sizes in fractional lots with no floor, and 816 of its 4,358
+      trades (18.7%) need less than the 0.01 lot a retail account starts with. Those are
+      the widest-stop trades - median 751 pips - and they are NOT where the edge isn't:
+      they carry +0.0452R while the 3,542 trades a $10k account can actually place carry
+      +0.0088R. Skip the sub-lot tail and you keep 81% of the trades but only 56% of the
+      expectancy, leaving a profit factor of 1.03 - inside the noise of the costs. Every
+      pair stays tradeable, so this is not a coverage problem; it is a size problem. To
+      place the whole book at 0.5% risk you need roughly $12k (90th-pct stop) to $69k
+      (the widest stop the market ever produced), or a tighter ATR multiple that gives up
+      the exact trades doing the earning.

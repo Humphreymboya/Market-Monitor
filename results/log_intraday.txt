@@ -1,0 +1,156 @@
+====================================================================================================
+FRAME  5m: 26 pairs, ~81 days of history, 437,498 bars
+ENTRY  intraday_mr - 5m flush timed against the completed-hour trend, session window
+EXITS  13 barrier/time configs, stops at 8-24 x ATR(5m) so cost stays a fraction of R
+SEARCH 3 entry x 13 exit x 26 pairs = 1,014 looks -> significance bar z >= 3.7
+====================================================================================================
+
+842 pair/config results with 30+ trades
+
+1. HOW MANY LOOKS CLEAR THE TARGET, AND HOW MANY SHOULD BY PURE PAYOFF
+   rr=0.0   no price target, so no closed-form barrier null (see section 6)   looks= 201  observed >=70%:  27
+   rr=0.5   null= 66.7%  looks= 265  observed >=70%:   0   expected if every signal were worthless:  74.0
+   rr=0.75  null= 57.1%  looks=  66  observed >=70%:   0   expected if every signal were worthless:   1.8
+   rr=1.0   null= 50.0%  looks= 188  observed >=70%:   0   expected if every signal were worthless:   0.8
+   rr=1.5   null= 40.0%  looks=  61  observed >=70%:   0   expected if every signal were worthless:   0.0
+   rr=2.0   null= 33.3%  looks=  61  observed >=70%:   0   expected if every signal were worthless:   0.0
+
+2. BEST PAIR/CONFIG BY WIN RATE (all 842 results, top 20)
+  pair  entry  rr  atr_mult  max_bars  n     wr  se  excess   z    exp    pf  avg_pips
+CHFJPY      2 0.0      12.0         0 61 77.049 NaN     NaN NaN  0.044 1.967    13.236
+CHFJPY      2 0.0      12.0        72 61 77.049 NaN     NaN NaN  0.031 1.536    14.713
+EURAUD      2 0.0      12.0        72 39 74.359 NaN     NaN NaN  0.032 1.708    12.513
+EURAUD      2 0.0      18.0       144 39 74.359 NaN     NaN NaN  0.019 1.564    12.978
+EURAUD      2 0.0      12.0         0 39 74.359 NaN     NaN NaN  0.025 1.475    13.089
+CADJPY      2 0.0      12.0        72 72 73.611 NaN     NaN NaN  0.008 1.109    10.249
+CADJPY      2 0.0      12.0         0 72 73.611 NaN     NaN NaN  0.018 1.294     9.469
+GBPJPY      2 0.0      12.0         0 85 72.941 NaN     NaN NaN -0.013 0.885    19.191
+USDSGD      2 0.0      12.0         0 55 72.727 NaN     NaN NaN -0.029 0.659     5.139
+CADJPY      2 0.0      18.0       144 73 72.603 NaN     NaN NaN -0.011 0.827    12.022
+GBPJPY      2 0.0      12.0        72 87 72.414 NaN     NaN NaN -0.025 0.794    20.313
+USDJPY      2 0.0      12.0         0 72 72.222 NaN     NaN NaN -0.006 0.934    16.331
+USDSGD      2 0.0      18.0       144 57 71.930 NaN     NaN NaN -0.014 0.760     5.472
+CHFJPY      2 0.0      18.0       144 64 71.875 NaN     NaN NaN  0.004 1.069    17.350
+EURAUD      0 0.0      12.0        72 81 71.605 NaN     NaN NaN -0.000 1.000     9.147
+EURAUD      0 0.0      12.0         0 81 71.605 NaN     NaN NaN -0.001 0.987     9.198
+EURAUD      0 0.0      18.0       144 81 71.605 NaN     NaN NaN  0.000 1.014     9.041
+GBPCAD      2 0.0      12.0        72 70 71.429 NaN     NaN NaN -0.016 0.848    13.763
+CHFJPY      0 0.0      12.0         0 98 71.429 NaN     NaN NaN  0.021 1.385    12.952
+CHFJPY      0 0.0      12.0        72 98 71.429 NaN     NaN NaN  0.021 1.385    12.952
+
+3. EVERY PAIR'S BEST RESULT, SOLO (one row per pair, its own highest win rate)
+  pair  entry  rr  atr_mult  max_bars   n     wr    se  excess      z    exp    pf  avg_pips
+CHFJPY      2 0.0      12.0        72  61 77.049   NaN     NaN    NaN  0.031 1.536    14.713
+EURAUD      2 0.0      12.0        72  39 74.359   NaN     NaN    NaN  0.032 1.708    12.513
+CADJPY      2 0.0      12.0        72  72 73.611   NaN     NaN    NaN  0.008 1.109    10.249
+GBPJPY      2 0.0      12.0         0  85 72.941   NaN     NaN    NaN -0.013 0.885    19.191
+USDSGD      2 0.0      12.0         0  55 72.727   NaN     NaN    NaN -0.029 0.659     5.139
+USDJPY      2 0.0      12.0         0  72 72.222   NaN     NaN    NaN -0.006 0.934    16.331
+GBPCAD      2 0.0      12.0        72  70 71.429   NaN     NaN    NaN -0.016 0.848    13.763
+GBPUSD      0 0.0      12.0        72 159 70.440   NaN     NaN    NaN  0.011 1.153     6.200
+USDCHF      2 0.0      12.0         0  66 69.697   NaN     NaN    NaN  0.021 1.365     6.604
+AUDUSD      2 0.5      12.0       144  80 68.750 5.270   2.083  0.395  0.028 1.107    11.314
+EURJPY      2 0.0      12.0        72  76 68.421   NaN     NaN    NaN -0.021 0.803    14.852
+AUDJPY      2 0.0      18.0       144  83 67.470   NaN     NaN    NaN -0.017 0.763    11.765
+EURUSD      2 0.0      12.0         0 102 64.706   NaN     NaN    NaN -0.051 0.668     8.428
+NZDJPY      2 0.0      12.0        72  93 64.516   NaN     NaN    NaN -0.051 0.572     9.083
+EURCAD      2 0.0      12.0        72  49 63.265   NaN     NaN    NaN -0.000 0.993    12.280
+EURGBP      2 0.0      12.0        72  74 60.811   NaN     NaN    NaN -0.029 0.675     3.569
+USDCAD      2 0.0      12.0        72  38 57.895   NaN     NaN    NaN -0.068 0.425    14.011
+GBPNZD      1 0.0      18.0       144 145 55.862   NaN     NaN    NaN -0.021 0.525    13.753
+NZDUSD      1 0.5      12.0       144 114 55.263 4.415 -11.404 -2.583 -0.163 0.560    11.520
+GBPCHF      0 0.5      18.0       144  36 52.778 7.857 -13.889 -1.768 -0.039 0.518    16.983
+AUDNZD      0 0.0      12.0        72  67 52.239   NaN     NaN    NaN -0.014 0.684     6.007
+NZDCAD      1 0.5       8.0        72 105 51.429 4.600 -15.238 -3.312 -0.058 0.738    11.163
+EURCHF      1 0.5      12.0       144  36 47.222 7.857 -19.444 -2.475 -0.018 0.791    13.848
+
+4. THE ONES AT OR ABOVE 70% - and whether any clears the search bar
+   CHFJPY   n= 61 wr= 77.0% +-nan  null=  nan% excess=  +nanpt z= +nan  exp=+0.0313R pf=1.54  stop=12xATR tgt=0.0R avg=14.7 pips over 34 bars  -> suggestive only
+   EURAUD   n= 39 wr= 74.4% +-nan  null=  nan% excess=  +nanpt z= +nan  exp=+0.0319R pf=1.71  stop=12xATR tgt=0.0R avg=12.5 pips over 37 bars  -> suggestive only
+   CADJPY   n= 72 wr= 73.6% +-nan  null=  nan% excess=  +nanpt z= +nan  exp=+0.0077R pf=1.11  stop=12xATR tgt=0.0R avg=10.2 pips over 32 bars  -> suggestive only
+   GBPJPY   n= 85 wr= 72.9% +-nan  null=  nan% excess=  +nanpt z= +nan  exp=-0.0125R pf=0.89  stop=12xATR tgt=0.0R avg=19.2 pips over 33 bars  -> suggestive only
+   USDSGD   n= 55 wr= 72.7% +-nan  null=  nan% excess=  +nanpt z= +nan  exp=-0.0287R pf=0.66  stop=12xATR tgt=0.0R avg=5.1 pips over 38 bars  -> suggestive only
+   USDJPY   n= 72 wr= 72.2% +-nan  null=  nan% excess=  +nanpt z= +nan  exp=-0.0064R pf=0.93  stop=12xATR tgt=0.0R avg=16.3 pips over 41 bars  -> suggestive only
+   GBPCAD   n= 70 wr= 71.4% +-nan  null=  nan% excess=  +nanpt z= +nan  exp=-0.0157R pf=0.85  stop=12xATR tgt=0.0R avg=13.8 pips over 33 bars  -> suggestive only
+   GBPUSD   n=159 wr= 70.4% +-nan  null=  nan% excess=  +nanpt z= +nan  exp=+0.0113R pf=1.15  stop=12xATR tgt=0.0R avg=6.2 pips over 18 bars  -> suggestive only
+
+   8 of 26 pairs reached 70%, from 1,014 looks.
+   At this sample size one worthless signal per pair prints above 70% roughly as often
+   as not, so the count of hits is the expected count whether the edge is real or not.
+   The column that separates them is z, and the bar is 3.7 .
+
+5. OUT-OF-SAMPLE SPLIT ON THE TOP PAIRS - first half vs second half, nothing refitted
+   CHFJPY   first half n= 35 wr= 74.3% exp=+0.0356R | second half n= 26 wr= 80.8% exp=+0.0255R | 2x cost wr= 63.9% exp=-0.0045R
+   EURAUD   first half n= 18 wr= 83.3% exp=+0.0352R | second half n= 21 wr= 66.7% exp=+0.0291R | 2x cost wr= 69.2% exp=+0.0007R
+   CADJPY   first half n= 32 wr= 71.9% exp=+0.0319R | second half n= 40 wr= 75.0% exp=-0.0117R | 2x cost wr= 56.9% exp=-0.0445R
+   GBPJPY   first half n= 44 wr= 75.0% exp=+0.0492R | second half n= 41 wr= 70.7% exp=-0.0788R | 2x cost wr= 64.7% exp=-0.0564R
+   USDSGD   first half n= 32 wr= 71.9% exp=-0.0398R | second half n= 23 wr= 73.9% exp=-0.0132R | 2x cost wr= 29.1% exp=-0.1203R
+   USDJPY   first half n= 33 wr= 69.7% exp=-0.0098R | second half n= 39 wr= 74.4% exp=-0.0036R | 2x cost wr= 63.9% exp=-0.0307R
+
+6. THE CONTROL THAT MATTERS: same trades, filters removed
+   Enter at every 5m extreme from the mean, exit on the return to the mean, same
+   stops, same costs - but no trend filter, no RSI, no session window. This is not
+   a random signal; it is this exact trade shape with no judgement in it. Whatever
+   the real strategy beats this by is the whole of its edge.
+   rr=0.0   filter-free geometry: mean wr= 53.4%  best pair= 72.0%  pairs >=70%:  2/234   exp mean=-0.0439R
+          vs filtered strategy: mean wr= 54.6%  best pair= 77.0%  delta =  +1.3pt   exp -0.0376R vs -0.0489R
+   rr=0.5   filter-free geometry: mean wr= 51.4%  best pair= 64.6%  pairs >=70%:  0/312   exp mean=-0.0461R   (barrier null 66.7%)
+          vs filtered strategy: mean wr= 48.7%  best pair= 68.8%  delta =  -3.0pt   exp -0.0529R vs -0.0519R
+   rr=0.75  filter-free geometry: mean wr= 49.8%  best pair= 60.7%  pairs >=70%:  0/ 78   exp mean=-0.0499R   (barrier null 57.1%)
+          vs filtered strategy: mean wr= 44.8%  best pair= 60.9%  delta =  -4.7pt   exp -0.0754R vs -0.0567R
+   rr=1.0   filter-free geometry: mean wr= 47.2%  best pair= 60.7%  pairs >=70%:  0/234   exp mean=-0.0353R   (barrier null 50.0%)
+          vs filtered strategy: mean wr= 44.4%  best pair= 60.7%  delta =  -2.6pt   exp -0.0672R vs -0.0407R
+   rr=1.5   filter-free geometry: mean wr= 46.6%  best pair= 60.6%  pairs >=70%:  0/ 78   exp mean=-0.0337R   (barrier null 40.0%)
+          vs filtered strategy: mean wr= 44.0%  best pair= 60.0%  delta =  -2.6pt   exp -0.0972R vs -0.0357R
+   rr=2.0   filter-free geometry: mean wr= 46.0%  best pair= 60.7%  pairs >=70%:  0/ 78   exp mean=-0.0454R   (barrier null 33.3%)
+          vs filtered strategy: mean wr= 42.9%  best pair= 59.5%  delta =  -2.8pt   exp -0.1060R vs -0.0523R
+
+   HEAD-TO-HEAD on the pairs that reached 70% (same pair, same config, filters on vs off):
+   CHFJPY   rr=0.0   stop=12xATR  filters ON  77.0% (n= 61) exp=+0.0313R | filters OFF  69.7% (n=357) exp=-0.0104R | the filters are worth  +7.3pt and +0.0417R
+   EURAUD   rr=0.0   stop=12xATR  filters ON  74.4% (n= 39) exp=+0.0319R | filters OFF  66.0% (n=265) exp=-0.0187R | the filters are worth  +8.3pt and +0.0506R
+   CADJPY   rr=0.0   stop=12xATR  filters ON  73.6% (n= 72) exp=+0.0077R | filters OFF  66.4% (n=357) exp=-0.0432R | the filters are worth  +7.2pt and +0.0509R
+   GBPJPY   rr=0.0   stop=12xATR  filters ON  72.9% (n= 85) exp=-0.0125R | filters OFF  71.2% (n=386) exp=-0.0272R | the filters are worth  +1.7pt and +0.0147R
+   USDSGD   rr=0.0   stop=12xATR  filters ON  72.7% (n= 55) exp=-0.0287R | filters OFF  65.2% (n=299) exp=-0.0450R | the filters are worth  +7.5pt and +0.0163R
+   USDJPY   rr=0.0   stop=12xATR  filters ON  72.2% (n= 72) exp=-0.0064R | filters OFF  68.7% (n=345) exp=-0.0362R | the filters are worth  +3.5pt and +0.0298R
+   GBPCAD   rr=0.0   stop=12xATR  filters ON  71.4% (n= 70) exp=-0.0157R | filters OFF  64.1% (n=343) exp=-0.0390R | the filters are worth  +7.3pt and +0.0234R
+   GBPUSD   rr=0.0   stop=12xATR  filters ON  70.4% (n=159) exp=+0.0113R | filters OFF  62.4% (n=765) exp=-0.0453R | the filters are worth  +8.1pt and +0.0566R
+
+7. WHAT THE 70% ACTUALLY IS - payoff shape, and the filters scored against the
+   geometry control, because a mean-touch exit has no closed-form barrier null.
+   Two-proportion z below compares the same pair's filtered trades against its own
+   unfiltered trades: identical exit, identical costs, filters as the only variable.
+
+   pair       n_f   n_c  wr_on  wr_off      z   win_R  loss_R   worst  maxDD_R  tr/d  pips/d
+   CHFJPY      61   357  77.0%   69.7%  +1.16  +0.117  -0.255   -1.04      1.3  0.75   +2.74
+   EURAUD      39   265  74.4%   66.0%  +1.03  +0.104  -0.176   -0.43      0.5  0.48   +1.42
+   CADJPY      72   357  73.6%   66.4%  +1.19  +0.106  -0.268   -0.75      3.1  0.89   +0.62
+   GBPJPY      85   386  72.9%   71.2%  +0.31  +0.133  -0.404   -1.05      5.7  1.05   -2.56
+   USDSGD      55   299  72.7%   65.2%  +1.08  +0.076  -0.309   -1.09      2.3  0.68   -0.39
+   USDJPY      72   345  72.2%   68.7%  +0.59  +0.126  -0.352   -0.95      2.2  0.89   -0.41
+   GBPCAD      70   343  71.4%   64.1%  +1.17  +0.122  -0.360   -1.07      1.6  0.86   -0.82
+   GBPUSD     159   765  70.4%   62.4%  +1.93  +0.121  -0.251   -1.06      1.4  1.96   +1.06
+
+7b. TRADABILITY: what one R actually is, what the spread costs, and whether a retail account can place it
+   pair     stop_pips  spread  cost%ofR  wr@2x   exp@2x  wr@3x   exp@3x  lot@10k $risk@0.01  min_acct
+   CHFJPY        95.6     2.6      2.7%  63.9%  -0.0045  52.5%  -0.0403    0.083       6.06     1,211
+   EURAUD        98.5     2.3      2.3%  69.2%  +0.0007  64.1%  -0.0305    0.074       6.79     1,359
+   CADJPY        66.7     2.6      3.9%  56.9%  -0.0445  37.5%  -0.0967    0.118       4.23       845
+   GBPJPY        85.1     2.8      3.3%  64.7%  -0.0564  50.6%  -0.1002    0.093       5.39     1,079
+   USDSGD        35.9     2.4      6.7%  29.1%  -0.1203   3.6%  -0.2119    0.178       2.81       562
+   USDJPY        80.4     1.2      1.5%  63.9%  -0.0307  58.3%  -0.0549    0.098       5.09     1,019
+   GBPCAD        72.2     2.5      3.5%  65.7%  -0.0634  48.6%  -0.1112    0.097       5.14     1,028
+   GBPUSD        37.6     1.4      3.7%  52.2%  -0.0455  30.8%  -0.1023    0.133       3.76       752
+
+   READ THIS BEFORE ACTING ON ANY ROW ABOVE.
+   - None of these configs has a price target (rr=0). The exit is 'price is back at
+     the mean it left'. A position wins unless it first travels the whole stop - 12
+     ATR(5m) - against it, so a high hit rate is the shape of the trade, not proof
+     of a signal. The unfiltered column is what that shape alone earns.
+   - The 70% only exists at rr=0. At rr=0.5, where a target is 0.5R and the null is
+     already 66.7%, ZERO of 265 looks cleared 70% when 74 should have from worthless
+     signals. With a real target the strategy does not just miss the bar, it sits
+     under it. There is no pair here that wins 70% of the time for a payoff.
+   - Costs are the whole story on this frame: every one of these pairs falls below
+     70% when the spread is doubled, and the two with the best expectancy go flat.
+     A 5m mean-reversion edge of well under a pip per trade does not survive a
+     slightly bad fill, a news day, or an ECN that is not quoted at the median.

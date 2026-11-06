@@ -1,0 +1,17 @@
+{
+  "family": "bb_fade",
+  "params": {
+    "bb_n": 30,
+    "k": 1.5,
+    "rsi_buy": 40,
+    "trend": 0,
+    "adx_max": 0
+  },
+  "cfg": {
+    "atr_mult": 4.0,
+    "rr": 0.5,
+    "max_bars": 0,
+    "trail_atr": 0.0,
+    "use_exit_sig": false
+  }
+}

@@ -1,0 +1,54 @@
+# Every 5 minutes, on GitHub's own clock. Public repo, so the minutes are free and the
+# scheduled run is not capped by a plan quota.
+name: live-5m-monitor
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore: ["state/**"]        # otherwise a state commit would re-trigger this job
+
+permissions:
+  contents: write
+
+concurrency:
+  group: monitor
+  cancel-in-progress: false            # never kill a pass halfway: it may have just opened
+
+jobs:
+  scan:
+    if: github.repository == 'Humphreymboya/Market-Monitor'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: scan and alert
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          ACCOUNT: ${{ vars.ACCOUNT || '10000' }}
+          RISK_PCT: ${{ vars.RISK_PCT || '0.5' }}
+          WATCH_TOP: ${{ vars.WATCH_TOP || '3' }}
+        run: python -m lab.monitor
+
+      - name: commit the position book so the next run inherits it
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase --autostash origin main
+          if ! git diff --quiet -- state/; then
+            git add state/
+            git commit -m "state: positions after scan [skip ci]"
+            git push origin main
+          fi

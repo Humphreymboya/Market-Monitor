@@ -1,0 +1,29 @@
+================================================================================================
+SYSTEM   bb_fade {"adx_max": 0, "bb_n": 30, "k": 1.5, "rsi_buy": 40, "trend": 0}
+ACCOUNT  $10,000 at 0.5% risk = $50 a trade | minimum order 0.01 lot
+FRAME    1d_rep: 26 pairs, real spread + slippage
+================================================================================================
+stop width is the lever: a wider stop raises the edge AND puts more of the book under the lot floor
+
+  atr    rr |  all_n  all_exp | sub-floor | tradable_n      exp      t    pf   ann%
+-----------------------------------------------------------------------------------
+  1.5  0.50 |  13155  -0.0135 |      0.6% |        13074  -0.0133  -2.10  0.96  -3.9%
+  2.0  0.50 |   9776  -0.0052 |      1.8% |         9603  -0.0054  -0.73  0.98  -1.2%
+  2.5  0.50 |   7783  +0.0017 |      3.9% |         7480  -0.0002  -0.02  1.00  -0.0%
+  3.0  0.50 |   6392  +0.0040 |      7.6% |         5906  +0.0054   0.59  1.02   0.7%
+  4.0  0.50 |   4358  +0.0156 |     18.7% |         3542  +0.0088   0.67  1.03   0.7%
+  5.0  0.50 |   2980  +0.0163 |     34.0% |         1966  +0.0146   0.88  1.04   0.7%
+  6.0  0.50 |   2010  +0.0164 |     51.2% |          980  +0.0019   0.08  1.01   0.0%
+
+best tradable expectancy: atr_mult 5.0 -> +0.0146R, t=0.88
+reading: t < 2 on the tradable subset means the part of the book a small account
+can place is not distinguishable from a costed coin flip, whatever the full
+history says. Compare with the n=4,358 pooled z in log_champion.txt - the subset
+test is the one that applies to an actual account.
+
+account scaling (same config, --account 25000 / 100000): the sub-floor share
+falls to 1.0% and 0.0%, so with enough capital the constraint disappears. It does
+not rescue the system: the tradable t-stat rises only to 1.35, which is where the
+unconstrained history already sat. Two separate findings, do not conflate them -
+a $10k account throws away 44% of the measured edge, and an account large enough
+to take all of it still has an edge that is not statistically established.

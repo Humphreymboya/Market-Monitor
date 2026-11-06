@@ -1,0 +1,20 @@
+{
+  "family": "bb_fade",
+  "params": {
+    "bb_n": 30,
+    "k": 1.5,
+    "rsi_buy": 40,
+    "trend": 0,
+    "adx_max": 0
+  },
+  "cfg": {
+    "atr_mult": 2.0,
+    "rr": 1.5,
+    "max_bars": 0,
+    "trail_atr": 0.0,
+    "rr1": 0.5,
+    "scale": 0.6
+  },
+  "cfg_i": 19,
+  "tf": "1d_clean"
+}
