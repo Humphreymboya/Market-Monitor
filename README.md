@@ -142,8 +142,10 @@ is announced, because a feed that answers with yesterday looks exactly like a re
 
    **A ntfy topic is not an account and has no access control.** Anyone who knows the
    string can read every alert on it and can send fake ones to everyone subscribed. The
-   topic in use here is derived from this repository's name, so it is guessable: treat what
-   arrives on it as unauthenticated. If that stops being acceptable, generate a random
+   topic in use here is derived from this repository's name, so it is guessable, and that is
+   already real rather than theoretical: a message from someone else landed on it at 12:52
+   UTC on 2026-11-06, five minutes after a genuine ticket. Treat what arrives on it as
+   unauthenticated. If that stops being acceptable, generate a random
    string, set it as `NTFY_TOPIC`, and subscribe to the new one - the next run picks it up
    with no other change.
 3. Priority 4 and 5 alerts can bypass silent mode once you enable it per topic in the app.
@@ -167,15 +169,25 @@ why they are checked in.
 
 ## Deployment facts worth knowing
 
-- **Cadence, and the measured reason for it.** `.github/workflows/live.yml` now asks for
-  `*/15 * * * *`. It asked for `*/5` first, and four hours of evidence says GitHub never
-  served it: zero `event: schedule` runs, while three push-triggered runs and a manual
-  dispatch of the same file on the same branch all succeeded, on a public repo with Actions
-  enabled and the workflow active. GitHub documents scheduled runs as best-effort, so the
-  request that gets dropped is the one asking for 288 runs a day.
-  **Whether `*/15` fires is still being observed** — until a schedule-triggered run is in
-  the history, treat the 24/7 claim as unproven and use *Run workflow* for a pass you can
-  watch happen.
+- **Cadence, measured.** `.github/workflows/live.yml` asks for `*/15 * * * *`; it asked for
+  `*/5` before that. Over seven and a half hours and roughly thirty boundaries, GitHub served
+  **zero `event: schedule` runs**. It ran every push and every manual dispatch of the same
+  file on the same branch in the same period. So the schedule is not late, it is absent, and
+  the reason is on the account rather than in this repo - it is not a fork, Actions is set to
+  allow all actions, the workflow is `active`, and the file is on the default branch. Until a
+  schedule-triggered run actually appears in the history, treat 24/7 as unproven.
+- **What runs it today.** Anything except the timer: a push to `main`, the *Run workflow*
+  button, `gh workflow run live.yml -R Humphreymboya/Market-Monitor`, or `tools/clock.ps1`,
+  which is that last command wrapped so it can be registered as a scheduled task on your own
+  machine every 5 minutes. The script is in the repo and is deliberately **not** registered
+  by anything here; installing it is your call, and `schtasks /delete /tn MarketMonitor-Tick /f`
+  undoes it. Whichever way a pass arrives, the behaviour is identical, and the state book plus
+  the workflow's concurrency group mean overlapping passes queue instead of double-alerting.
+- **End to end is proven, including with a live trade.** The 12:47 UTC pass on 2026-11-06
+  reached `ntfy.sh/Market-monitor` with `EURAUD LONG 1.62383` - signal bar, 118-pip stop,
+  18-pip target, 0.06 lot on $10,000 - and the runner committed that open position back to
+  `state/positions.json`, which is the step whose missing credential used to be the reason a
+  second ticket would have been sent for the same setup.
 - **Slower polling does not lose setups here, and that is a property of the signal, not luck.**
   `intraday_mr` returns a state, not a one-bar event: price beyond `dev_k` ATRs from the
   mean, RSI(2) still under the buy level, the completed hour still trending the other way,

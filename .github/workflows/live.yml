@@ -5,8 +5,11 @@
 # */5 * * * * this workflow logged zero schedule-triggered runs in four hours while every
 # push and workflow_dispatch run on the same file succeeded - GitHub documents schedules as
 # best-effort, and a request for 288 runs a day is the first thing a best-effort scheduler
-# drops. Whether */15 actually fires is still being measured; until it does, treat the
-# cadence as unconfirmed and use "Run workflow" for a pass you can see happen.
+# drops. */15 did not change the outcome: seven and a half hours and roughly thirty
+# boundaries later, the count of event:schedule runs is still zero while pushes and
+# dispatches in the same window all ran. The schedule request stays, because it is free and
+# correct; until one appears in the run history, the passes arrive by push, by "Run
+# workflow", or by tools/clock.ps1, and 24/7 is a claim that has not been demonstrated yet.
 #
 # Polling less often does not lose the setups that are still alive, because intraday_mr
 # returns a STATE rather than a one-bar event: z beyond dev_k, RSI(2) still under the buy
