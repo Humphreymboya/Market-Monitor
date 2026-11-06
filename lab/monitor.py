@@ -24,10 +24,11 @@ right now, at the frequency it historically did it, with its own evidence attach
 Two deliberate behaviours.
 
 The phone gets order tickets and nothing else. A pass that finds nothing sends nothing -
-no heartbeat, no "still watching", no summary - because an alert that carries no decision
-teaches you to ignore the alerts that carry one. Set the repo variable ALERTS=entry to
-drop the close-out ping too; it is on by default only because the target here is a moving
-mean and a limit order parked at the printed level is an approximation, not the exit.
+no heartbeat, no "still watching", no summary, no closing ping - because an alert that
+carries no decision teaches you to ignore the alerts that carry one. The ticket already
+gives a hard stop and a target level to put on the trade, so the broker handles the exit;
+the outcome is written to the state book and quoted on the pair's next ticket, which keeps
+the record without a second buzz.
 
 A dead feed is the one non-ticket that gets through, throttled to once per continuous
 outage and never while the market is actually shut, because a monitor that quietly stops

@@ -48,9 +48,16 @@ jobs:
         run: python -m lab.monitor
 
       - name: commit the position book so the next run inherits it
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # checkout's default remote is unauthenticated https, so a plain `git push`
+          # fails the moment there is something to commit - which is exactly the first
+          # trade. A run that alerts and then loses its own book alerts the same setup
+          # again on the next pass, so the credential goes on the remote before the push.
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git pull --rebase --autostash origin main
           if ! git diff --quiet -- state/; then
             git add state/

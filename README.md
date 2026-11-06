@@ -66,18 +66,23 @@ bars and executes at the next open, exactly like `lab/backtest.py`.
 
 ## What an alert looks like
 
-```
-CHFJPY LONG 191.42200                                     p4
+Verbatim from a ticket this code produced while being replayed over the cached bars (only
+the age line is written as it would read live, since a replay is looking at the past):
 
-LONG  entry 191.42200
-STOP    189.99711  (142 pips = 12x ATR(14))
-TARGET  191.60927  (19 pips away: the 96-bar mean, which keeps moving)
-SIZE    0.07 lot on a $10,000 account = $50 at risk (0.5%)
-        spread 2.6 pips = 3.6% of R
+```
+EURAUD LONG 1.59651                                       p4
+
+LONG  entry 1.59651
+SIGNAL  14:55 UTC bar, 5 min ago (that gap is the alert arriving late, not the setup getting better)
+STOP    1.58459  (119 pips = 12x ATR(14))
+TARGET  1.59824  (17 pips away: the 96-bar mean, which keeps moving)
+        put the stop and this target on the trade now; the monitor does not alert again on this pair until the next ticket
+SIZE    0.06 lot on a $10,000 account = $50 at risk (0.5%)
+        spread 2.3 pips = 3.9% of R
 TIME    close out after 72 bars (~6 h) if neither barrier is hit
 
-Evidence: 77.0% of 61 trades over 81 days, +0.031R per trade, profit factor 1.54.
-NOT PROVEN: the same trade with the trend/RSI/session filters removed wins 69.7% of 357 (z=+1.16, needs +3.7).
+Evidence: 74.4% of 39 trades over 81 days, +0.032R per trade, profit factor 1.71.
+NOT PROVEN: the same trade with the trend/RSI/session filters removed wins 66.0% of 265 (z=+1.03, needs +3.7).
 It only reaches 70% because this config sets no profit target - the exit is the mean.
 At 2x the assumed spread it falls under 70% and stops paying.
 ```
@@ -85,23 +90,45 @@ At 2x the assumed spread it falls under 70% and stops paying.
 Notes on reading it:
 
 - **TARGET is not a level you can leave a limit order at.** The exit is the mean, and the
-  mean moves every bar. The number printed is where it stood at entry. The monitor tells you
-  when it is reached.
+  mean moves every bar. The number printed is where it stood at entry, so it is a good
+  place to rest a limit and a fair approximation of what the backtest did - the trade that
+  produced the 77% actually closed whenever price came back to the mean, wherever that was
+  by then.
 - **The stop is wide on purpose.** 95-140 pips is what makes the cost a fraction of R, and
   what makes this a wide-stop mean reversion that happens to be timed on 5m bars rather than
   the scalp the question implied.
-- **Closures arrive as separate alerts** at priority 3 (`STOPPED`, `TARGET`, `TIME STOP`) with
-  the R multiple.
+- **Nothing else is sent for that trade.** No "position open" confirmation, no hourly
+  status, no closing ping. The outcome of every ticket is written to
+  `state/positions.json` and quoted at the top of the pair's next alert
+  (`LAST    your previous CHFJPY ticket resolved TARGET +0.07R`), so the record survives
+  without a second buzz.
+
+### How often it speaks
+
+Measured, not assumed: replaying this exact code path over the cached 5m bars gives
+**2.4 alerts a day** on the three-pair watchlist - all of them priority 4 tickets, none of
+them status. On all eight qualifying pairs it is 8.5 a day, which is why the deployed
+`WATCH_TOP` is 3. The only non-ticket that can ever reach the phone is a feed outage, once
+per continuous outage, and never while the FX market is shut.
+
+Silence has one exception worth knowing about, and it is deliberate: if a pair's newest
+closed bar is more than 45 minutes old **during trading hours**, that counts as blind and
+is announced, because a feed that answers with yesterday looks exactly like a result.
 
 ## Receiving it on your phone
 
 1. Install **ntfy** from your app store (Android and iOS both have an official client; the
    project page is https://ntfy.sh), or just open https://ntfy.sh in a browser and subscribe
    there.
-2. Subscribe to the topic that is stored as the `NTFY_TOPIC` secret in this repo's
-   Settings -> Secrets and variables -> Actions. Treat that string as a password: anyone who
-   knows it can both read your alerts and send fake ones to your phone. If it leaks, set a
-   new one and restart nothing — the next run picks it up.
+2. Subscribe to the topic stored as the `NTFY_TOPIC` secret in this repo's Settings ->
+   Secrets and variables -> Actions.
+
+   **A ntfy topic is not an account and has no access control.** Anyone who knows the
+   string can read every alert on it and can send fake ones to everyone subscribed. The
+   topic in use here is derived from this repository's name, so it is guessable: treat what
+   arrives on it as unauthenticated. If that stops being acceptable, generate a random
+   string, set it as `NTFY_TOPIC`, and subscribe to the new one - the next run picks it up
+   with no other change.
 3. Priority 4 and 5 alerts can bypass silent mode once you enable it per topic in the app.
    Priority 5 is reserved for "the monitor is blind", so it should.
 
@@ -136,20 +163,35 @@ why they are checked in.
   on purpose: 288 "no change" commits a day would make the history unreadable. The commit
   carries `[skip ci]` and the `push` trigger ignores `state/**`, so it cannot loop.
 - **A schedule can be switched off and no alert will tell you.** GitHub disables scheduled
-  workflows on a repo with no activity for 60 days and emails the account owner. Because a
-  quiet position book means no commits, that timer can genuinely run down here. This is the
-  one silence this design cannot break: `MONITOR BLIND` fires when a run executes and cannot
-  reach Yahoo, whereas a disabled schedule never executes at all. If alerts go quiet for a
-  whole weekday session, check Settings -> Actions before concluding the market had nothing
-  to say.
+  workflows on a repo with no commit activity for 60 days and emails the account owner.
+  Since every ticket now leaves a trace in the state book when it opens and again when it
+  resolves, a trading week produces commits and the timer keeps resetting — but a long
+  holiday period or a run of passes with no signal does not. This is the one silence the
+  design cannot break: `MONITOR BLIND` fires when a run executes and cannot reach Yahoo,
+  whereas a disabled schedule never executes at all. If alerts go quiet for a whole weekday
+  session, check Settings -> Actions before concluding the market had nothing to say.
 - **Yahoo blocks datacenter IPs** often enough that a single retry is not a hedge, so the
   fetcher does four with backoff and jitter. There is no key-free second source for 5m FX
   bars to fall back on — stooq sits behind a JavaScript proof-of-work wall and everything
   else needs an account. When the feed still fails, the monitor sends a priority-5
   **MONITOR BLIND** alert naming the pairs it could not evaluate, rather than saying nothing.
-- **Stale frames never signal.** Yahoo keeps serving the last Friday bar through the weekend.
-  If the newest closed bar is more than 45 minutes old the pass reports the gap and declines
-  to open, so no ticket is ever written on a Saturday.
+- **The failure alert is issued once per outage, not once per failed pass.** At a 5-minute
+  cadence an unthrottled version of that is 288 urgent alerts a day for one bad Yahoo hour,
+  and the second hundred teach you to ignore the first. The state book carries a `_blind`
+  flag; it is set when the alert is delivered and cleared, with one recovery ping, when a
+  pass evaluates cleanly again. While the flag is set the log still names every failure on
+  every pass — the Actions run history is the full record, the phone is the summary.
+- **Nothing is announced while the market is legitimately shut.** FX is closed from
+  Friday 22:00 UTC to Sunday 22:00 UTC, and Yahoo serves the last Friday bar the whole time.
+  Announcing that as a feed failure would be a lie with an exclamation mark, so
+  `fx_open()` gates the alert. A pair that cannot be evaluated over the weekend is simply
+  not evaluated, and the recovery ping says so: pairs that produced nothing while the
+  monitor was blind produced nothing because they were not looked at, not because there was
+  no setup.
+- **Stale frames never signal.** If the newest closed bar is more than 45 minutes old the
+  pass reports the gap and declines to open, so no ticket is ever written on a Saturday.
+  Staleness *during* trading hours is treated as blindness and announced, because a feed
+  that answers with yesterday looks exactly like a result — which is worse than an error.
 
 ## Repository
 
