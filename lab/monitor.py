@@ -170,6 +170,7 @@ def ticket(name, lv, cfg, usd_table, account, risk_pct):
     return dict(dir="LONG" if d > 0 else "SHORT", entry=px, stop=px - d * sd,
                 target=lv["mean"], sd=sd, stop_pips=stop_pips,
                 mean_pips=abs(lv["mean"] - px) / pip, bars=cfg["max_bars"],
+                bar=lv["bar"],
                 # sizing() returns None outright when it cannot price the quote currency;
                 # an empty dict lets every caller use .get() instead of crashing on a ticket
                 sizing=L.sizing(pip, px, name[3:], usd_table,
@@ -211,8 +212,11 @@ def body_for(ev, tk, account, risk_pct):
             if s.get("lots") is None else
             f"{s['lots']:.2f} lot on a ${account:,.0f} account "
             f"= ${account * risk_pct / 100:,.0f} at risk ({risk_pct}%)")
+    age = pd.Timestamp.now(tz="UTC") - tk["bar"]
     lines = [
         f"{tk['dir']}  entry {tk['entry']:.5f}",
+        f"SIGNAL  {tk['bar']:%H:%M} UTC bar, {age.total_seconds() / 60:.0f} min ago "
+        f"(that gap is the alert arriving late, not the setup getting better)",
         f"STOP    {tk['stop']:.5f}  ({tk['stop_pips']:.0f} pips = "
         f"{ev['cfg']['atr_mult']:.0f}x ATR(14))",
         f"TARGET  {tk['target']:.5f}  ({tk['mean_pips']:.0f} pips away: the "
@@ -343,8 +347,10 @@ def run(account=10_000.0, risk_pct=0.5, topic=None, token=None, limit=3, dry=Fal
         print("no pair currently qualifies - rerun: python -m lab.intraday")
         return
     watch = watch[:limit]
+    # the topic is the credential, and Actions logs on a public repo are readable by
+    # anyone, so this reports whether it is set and never what it is
     print(f"watching {[e['pair'] for e in watch]} | ${account:,.0f} @ {risk_pct}% | "
-          f"ntfy {'dry-run' if dry else (topic[:8] + '...' if topic else 'NO TOPIC')}")
+          f"ntfy {'dry-run' if dry else ('configured' if topic else 'NOT CONFIGURED')}")
     global TOPIC, TOKEN, DRY
     TOPIC, TOKEN, DRY = topic, token, dry
     st = load_state()

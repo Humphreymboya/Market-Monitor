@@ -131,9 +131,17 @@ why they are checked in.
   5-minute scan of 3 pairs burns 8,800 to 13,000 — the job would stop mid-month and go quiet.
   Public repos are not capped, so the schedule is honest. The cost is that the strategy, the
   watchlist and the position book are readable by anyone.
-- **The position book is committed back** to `state/positions.json` after every pass, because
-  Actions has no memory between runs. The commit carries `[skip ci]` and the `push` trigger
-  ignores `state/**`, so it cannot loop.
+- **The position book is committed back** to `state/positions.json`, because Actions has no
+  memory between runs. It commits only when the book actually changed rather than every pass
+  on purpose: 288 "no change" commits a day would make the history unreadable. The commit
+  carries `[skip ci]` and the `push` trigger ignores `state/**`, so it cannot loop.
+- **A schedule can be switched off and no alert will tell you.** GitHub disables scheduled
+  workflows on a repo with no activity for 60 days and emails the account owner. Because a
+  quiet position book means no commits, that timer can genuinely run down here. This is the
+  one silence this design cannot break: `MONITOR BLIND` fires when a run executes and cannot
+  reach Yahoo, whereas a disabled schedule never executes at all. If alerts go quiet for a
+  whole weekday session, check Settings -> Actions before concluding the market had nothing
+  to say.
 - **Yahoo blocks datacenter IPs** often enough that a single retry is not a hedge, so the
   fetcher does four with backoff and jitter. There is no key-free second source for 5m FX
   bars to fall back on — stooq sits behind a JavaScript proof-of-work wall and everything
@@ -142,8 +150,6 @@ why they are checked in.
 - **Stale frames never signal.** Yahoo keeps serving the last Friday bar through the weekend.
   If the newest closed bar is more than 45 minutes old the pass reports the gap and declines
   to open, so no ticket is ever written on a Saturday.
-- **GitHub disables scheduled workflows after 60 days without repo activity.** The per-run
-  state commit counts as activity, so this stays awake on its own.
 
 ## Repository
 
