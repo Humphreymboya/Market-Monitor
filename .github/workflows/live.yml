@@ -1,5 +1,8 @@
 # Every 5 minutes, on GitHub's own clock. Public repo, so the minutes are free and the
 # scheduled run is not capped by a plan quota.
+#
+# Resaving this file is also the only known cure for a cron that GitHub registered but
+# never fired: the scheduler re-reads the schedule block from the default branch on push.
 name: live-5m-monitor
 
 on:
@@ -21,7 +24,9 @@ jobs:
   scan:
     if: github.repository == 'Humphreymboya/Market-Monitor'
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 8          # fetch_live retries four times with backoff per pair; 4 was
+                                # close enough to the edge that a bad Yahoo minute could kill
+                                # the run after an alert but before the book was committed
     steps:
       - uses: actions/checkout@v4
         with:

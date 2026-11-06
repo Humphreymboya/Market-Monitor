@@ -23,11 +23,18 @@ right now, at the frequency it historically did it, with its own evidence attach
 
 Two deliberate behaviours.
 
-Silence is never allowed to mean "nothing to report". A failed feed is announced at ntfy
-urgent priority, because a monitor that quietly stops monitoring is worse than no monitor.
-There is no key-free second source for 5m FX bars - stooq sits behind a JavaScript
-proof-of-work wall and every real alternative needs an account and a key - so the only
-available hedge is to shout when the one feed we have goes down.
+The phone gets order tickets and nothing else. A pass that finds nothing sends nothing -
+no heartbeat, no "still watching", no summary - because an alert that carries no decision
+teaches you to ignore the alerts that carry one. Set the repo variable ALERTS=entry to
+drop the close-out ping too; it is on by default only because the target here is a moving
+mean and a limit order parked at the printed level is an approximation, not the exit.
+
+A dead feed is the one non-ticket that gets through, throttled to once per continuous
+outage and never while the market is actually shut, because a monitor that quietly stops
+monitoring is worse than no monitor. There is no key-free second source for 5m FX bars -
+stooq sits behind a JavaScript proof-of-work wall and every real alternative needs an
+account and a key - so the only available hedge is to shout when the one feed we have goes
+down, once, and say so again when it comes back.
 
 Staleness is checked before anything is signalled. Yahoo keeps serving the last Friday bar
 all weekend, and a monitor that cannot tell the difference will happily "find" the same
@@ -63,6 +70,9 @@ PERIOD = "7d"                 # the longest 5m window Yahoo serves is ~60d; the 
 QUALIFY_WR = 70.0            # the target the user set, and the only thing that picks the list
 MIN_TRADES = 30              # below this the win rate is not a measurement, it is a coin toss
 STALE_AFTER = pd.Timedelta("45min")   # a weekend or a dead feed, either way: do not signal
+JOURNAL = "_outcomes"   # non-pair keys in the state file: how past tickets resolved, and
+BLIND = "_blind"        # whether the current feed outage has been announced yet, so an
+                        # outage costs one alert instead of one per five-minute pass
 
 # live.sizing needs a USD price for the QUOTE currency of every pair it sizes, and the
 # monitor may well watch EURAUD and CHFJPY without ever loading AUDUSD or USDJPY. So the
@@ -206,7 +216,7 @@ def notify(title, body, priority=3, tags=None):
         return False
 
 
-def body_for(ev, tk, account, risk_pct):
+def body_for(ev, tk, account, risk_pct, prev=None):
     s = tk["sizing"]
     size = ("size unknown - no USD price for the quote currency on this pass"
             if s.get("lots") is None else
@@ -221,12 +231,17 @@ def body_for(ev, tk, account, risk_pct):
         f"{ev['cfg']['atr_mult']:.0f}x ATR(14))",
         f"TARGET  {tk['target']:.5f}  ({tk['mean_pips']:.0f} pips away: the "
         f"{ev['kw']['dev_n']}-bar mean, which keeps moving)",
+        f"        put the stop and this target on the trade now; the monitor does not "
+        f"alert again on this pair until the next ticket",
         f"SIZE    {size}",
         f"        spread {tk['spread']:.1f} pips = {100 * tk['cost_r']:.1f}% of R",
     ]
     if ev["cfg"]["max_bars"]:
         lines.append(f"TIME    close out after {ev['cfg']['max_bars']} bars "
                      f"(~{ev['cfg']['max_bars'] * 5 / 60:.0f} h) if neither barrier is hit")
+    if prev:
+        lines.append(f"LAST    your previous {ev['pair']} ticket resolved {prev['why']} "
+                     f"{prev['r']:+.2f}R")
     lines += [
         "",
         f"Evidence: {ev['wr']:.1f}% of {ev['n']} trades over 81 days, "
@@ -292,10 +307,36 @@ def check_exit(pos, df, kw):
 
 
 # ------------------------------------------------------------------ run
-def one_pass(watch, data, st, usd_table, account, risk_pct, quiet=False):
-    """One sweep of the watchlist. Returns (tickets opened, closures, notes)."""
-    opened, closed, notes = [], [], []
-    now = pd.Timestamp.now(tz="UTC")
+def fx_open(now):
+    """
+    Is the retail FX market actually trading right now?
+
+    Yahoo keeps serving the last Friday bar all weekend, so on its own a stale frame proves
+    nothing. Without this, a Saturday is indistinguishable from a dead feed and the monitor
+    would spend the weekend shouting "I am blind" at priority 5 every five minutes - 500+
+    junk alerts a weekend, which is how you train someone to ignore the one that matters.
+    Friday 22:00 UTC to Sunday 22:00 UTC is the quiet window; the daily 21-22 UTC rollover
+    is not treated as a close because a 5m scanner cannot afford to miss an hour.
+    """
+    wd, hr = now.weekday(), now.hour
+    if wd == 5:
+        return False
+    if wd == 6:
+        return hr >= 22
+    if wd == 4:
+        return hr < 22
+    return True
+
+
+def one_pass(watch, data, st, usd_table, account, risk_pct, quiet=False, now=None):
+    """One sweep of the watchlist. Returns (tickets, closures, notes, stale-while-open).
+
+    `now` is injectable so a replay over the cached bars can ask "what would the phone have
+    received last month", which is the only way to measure whether this thing is actually
+    silent rather than believing the docstring.
+    """
+    opened, closed, notes, stale_open = [], [], [], []
+    now = now if now is not None else pd.Timestamp.now(tz="UTC")
     for ev in watch:
         name = ev["pair"]
         df = data.get(name)
@@ -307,6 +348,10 @@ def one_pass(watch, data, st, usd_table, account, risk_pct, quiet=False):
             # the market is shut, or the feed is not delivering. Either way there is no live
             # bar to act on, and pretending otherwise is how a weekend ticket gets written
             notes.append(f"{name} stale: newest closed bar is {age} old - not signalling")
+            if fx_open(now):
+                # stale WHILE TRADING is the other half of "blind": a feed that answers with
+                # yesterday is worse than one that errors, because it looks like a result
+                stale_open.append((name, age))
             continue
         pos = st.get(name)
         if pos:
@@ -315,8 +360,12 @@ def one_pass(watch, data, st, usd_table, account, risk_pct, quiet=False):
                 why, detail, r = done
                 st.pop(name)
                 closed.append((name, why, r))
-                notify(f"{name} {why} {r:+.2f}R", detail, priority=3,
-                       tags=["heavy_minus_sign" if r < 0 else "white_check_mark"])
+                # no phone alert: the ticket already gave a hard stop and a target, so the
+                # broker closes the trade. The outcome still goes in the book, and the next
+                # ticket for this pair opens with it - the record survives without a ping.
+                st.setdefault(JOURNAL, []).append(
+                    dict(pair=name, why=why, r=round(float(r), 3), detail=detail))
+                del st[JOURNAL][:-20]
         if lv["dirn"] and name not in st:
             if lv["n_closed"] < ev["kw"]["dev_n"] + 20:
                 notes.append(f"{name}: {lv['n_closed']} closed bars, need "
@@ -332,12 +381,13 @@ def one_pass(watch, data, st, usd_table, account, risk_pct, quiet=False):
                             max_bars=ev["cfg"]["max_bars"], cost_r=tk["cost_r"],
                             signal=lv["close"], lots=tk["sizing"].get("lots"))
             opened.append((name, tk))
+            prev = next((j for j in reversed(st.get(JOURNAL, [])) if j["pair"] == name), None)
             notify(f"{name} {tk['dir']} {tk['entry']:.5f}",
-                   body_for(ev, tk, account, risk_pct), priority=4,
+                   body_for(ev, tk, account, risk_pct, prev), priority=4,
                    tags=["arrows_counterclockwise"])
         elif not quiet and not pos and lv["dirn"] == 0:
             notes.append(f"{name} flat at {lv['bar']}")
-    return opened, closed, notes
+    return opened, closed, notes, stale_open
 
 
 def run(account=10_000.0, risk_pct=0.5, topic=None, token=None, limit=3, dry=False,
@@ -373,8 +423,8 @@ def run(account=10_000.0, risk_pct=0.5, topic=None, token=None, limit=3, dry=Fal
                 except RuntimeError as e:
                     fails.append(str(e))
         usd_table, _ = L.build_usd_table(usable) if usable else ({}, {})
-        opened, closed, notes = one_pass(watch, data, st, usd_table, account,
-                                          risk_pct)
+        opened, closed, notes, stale_open = one_pass(watch, data, st, usd_table, account,
+                                                      risk_pct)
         for n in notes:
             print("  " + n)
         for name, tk in opened:
@@ -383,16 +433,41 @@ def run(account=10_000.0, risk_pct=0.5, topic=None, token=None, limit=3, dry=Fal
                   f"{(tk['sizing'].get('lots') or float('nan')):.2f} lot")
         for name, why, r in closed:
             print(f"  CLOSED {name}: {why} {r:+.3f}R")
-        save_state(st)
-        if fails:
-            msg = "\n".join(fails)
-            print("  DATA FAILURE:\n" + msg)
+        # ---- the only non-ticket allowed to reach the phone, and it announces itself once
+        # per outage instead of once per failed pass: a five-minute cadence would otherwise
+        # turn a Yahoo hiccup into twelve urgent alerts an hour, which is indistinguishable
+        # from the monitor having been switched off.
+        blind = list(fails) + [f"{n}: no new bar for {a} while the market is trading"
+                               for n, a in stale_open]
+        fails = []
+        trading = fx_open(pd.Timestamp.now(tz="UTC"))
+        was_blind = st.get(BLIND, False)
+        if blind and trading:
+            print("  DATA FAILURE:\n" + "\n".join(blind))
+            if notify_failed and not was_blind:
+                if notify("MONITOR BLIND - the feed is not delivering",
+                          "\n".join(blind) +
+                          "\n\nThose pairs were NOT evaluated, so anything open in them is "
+                          "unwatched and no ticket in them will be reported. Silence from "
+                          "here on is not 'no signal' - it is 'not looking'.\n"
+                          "This is the only alert for this outage; you will get one more "
+                          "when the feed is back.",
+                          priority=5, tags=["warning"]):
+                    st[BLIND] = True
+        elif blind:
+            print("  feed short on a closed market - not signalling, not alerting")
+            if was_blind:
+                st.pop(BLIND, None)
+        elif was_blind:
+            st.pop(BLIND, None)
             if notify_failed:
-                notify("MONITOR BLIND - data feed failed",
-                       msg + "\n\nThose pairs were NOT evaluated on this pass, so anything "
-                       "open in them is unwatched. This is not 'no signal'.",
-                       priority=5, tags=["warning"])
-            fails = []
+                notify("feed back - watching " +
+                       ", ".join(e["pair"] for e in watch),
+                       "The outage you were told about is over. Pairs that produced nothing "
+                       "while it was down produced nothing because they were not looked at, "
+                       "not because there was no setup.",
+                       priority=3, tags=["white_check_mark"])
+        save_state(st)
         if once:
             break
         time.sleep(max(interval - 20, 60))
