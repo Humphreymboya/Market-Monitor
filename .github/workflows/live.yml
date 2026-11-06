@@ -8,12 +8,13 @@
 # drops. Whether */15 actually fires is still being measured; until it does, treat the
 # cadence as unconfirmed and use "Run workflow" for a pass you can see happen.
 #
-# Slower polling does not cost signal fidelity here, because intraday_mr returns a STATE,
-# not a one-bar event: z beyond dev_k, RSI(2) still under 20, hourly trend still intact,
-# still inside the session window. Those conditions survive for many consecutive bars, so a
-# pass 15 minutes late still finds the flush in progress. What a 15-minute cadence costs is
-# up to 15 minutes of price - which is why every ticket prints its own signal-bar age
-# instead of pretending the entry is fresh.
+# Polling less often does not lose the setups that are still alive, because intraday_mr
+# returns a STATE rather than a one-bar event: z beyond dev_k, RSI(2) still under the buy
+# level, hourly trend still intact, still inside the session window. But it does lose the
+# entry price - the backtest entered on the bar immediately after the signal, and a 15-minute
+# poll enters up to three bars later. Measured over 30 days on the top 3 pairs: 48 setups at
+# 15 minutes against 65 at 5, so the coarse poll alerts about three-quarters of them, and the
+# ones it drops are the fastest flushes. The age line on every ticket exists because of this.
 name: live-5m-monitor
 
 on:

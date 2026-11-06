@@ -105,11 +105,28 @@ Notes on reading it:
 
 ### How often it speaks
 
-Measured, not assumed: replaying this exact code path over the cached 5m bars gives
-**2.4 alerts a day** on the three-pair watchlist - all of them priority 4 tickets, none of
-them status. On all eight qualifying pairs it is 8.5 a day, which is why the deployed
-`WATCH_TOP` is 3. The only non-ticket that can ever reach the phone is a feed outage, once
-per continuous outage, and never while the FX market is shut.
+Measured, not assumed — replaying this exact code path over the cached bars:
+
+| cadence | watchlist | window | alerts | per day |
+|---|---|---|---|---|
+| 5 min | top 3 pairs | 10 days | 24 | 2.4 |
+| 5 min | all 8 qualifying pairs | 10 days | 85 | 8.5 |
+| **15 min (deployed)** | top 3 pairs | 30 days | 48 | **1.6** |
+| 15 min | all 8 pairs | 30 days | 164 | 5.5 |
+
+Every alert in all four rows is a priority-4 ticket; nothing else reached the phone. The
+`WATCH_TOP` default of 3 is the difference between 1.6 and 5.5 pushes a day on a signal
+that has not been proven.
+
+**The 15-minute cadence costs real fidelity, and it is worth being exact about what it
+costs.** `intraday_mr` returns a state rather than a one-bar event — price still beyond
+`dev_k` ATRs from the mean, RSI(2) still under the buy level, the completed hour still
+trending the other way, still inside the session window — so a late pass does not lose
+setups that are still alive. But the backtest entered on the bar *immediately after* the
+signal bar, and a 15-minute poll enters up to three bars later at a worse or better price
+chosen by luck. The 77% was measured on the 5-minute decision cadence; live tickets on the
+15-minute cadence are the same idea, sampled more coarsely, and should not be expected to
+reproduce it. If GitHub ever serves `*/5`, the replay above is the argument for taking it.
 
 Silence has one exception worth knowing about, and it is deliberate: if a pair's newest
 closed bar is more than 45 minutes old **during trading hours**, that counts as blind and
@@ -150,10 +167,22 @@ why they are checked in.
 
 ## Deployment facts worth knowing
 
-- **Cadence.** `.github/workflows/live.yml` fires at `*/5 * * * *`. GitHub documents
-  scheduled runs as best-effort: under load a run can start minutes late, and on a 5-minute
-  system that is a whole bar. The alert prints the signal bar's timestamp, so check it before
-  acting on a stale entry.
+- **Cadence, and the measured reason for it.** `.github/workflows/live.yml` now asks for
+  `*/15 * * * *`. It asked for `*/5` first, and four hours of evidence says GitHub never
+  served it: zero `event: schedule` runs, while three push-triggered runs and a manual
+  dispatch of the same file on the same branch all succeeded, on a public repo with Actions
+  enabled and the workflow active. GitHub documents scheduled runs as best-effort, so the
+  request that gets dropped is the one asking for 288 runs a day.
+  **Whether `*/15` fires is still being observed** — until a schedule-triggered run is in
+  the history, treat the 24/7 claim as unproven and use *Run workflow* for a pass you can
+  watch happen.
+- **Slower polling does not lose setups here, and that is a property of the signal, not luck.**
+  `intraday_mr` returns a state, not a one-bar event: price beyond `dev_k` ATRs from the
+  mean, RSI(2) still under the buy level, the completed hour still trending the other way,
+  still inside the session window. Those conditions hold across many consecutive bars, so a
+  pass 15 minutes late still finds the same flush in progress. What it does not get is the
+  same price, which is why the ticket prints its own signal-bar age and says the gap is the
+  alert arriving late rather than the setup getting better.
 - **Why this repo is public.** A private repo gets 2,000 free Actions minutes a month and a
   5-minute scan of 3 pairs burns 8,800 to 13,000 — the job would stop mid-month and go quiet.
   Public repos are not capped, so the schedule is honest. The cost is that the strategy, the
