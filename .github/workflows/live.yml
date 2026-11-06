@@ -1,13 +1,24 @@
-# Every 5 minutes, on GitHub's own clock. Public repo, so the minutes are free and the
-# scheduled run is not capped by a plan quota.
+# GitHub's own clock. Public repo, so the minutes are free and the scheduled run is not
+# capped by a plan quota.
 #
-# Resaving this file is also the only known cure for a cron that GitHub registered but
-# never fired: the scheduler re-reads the schedule block from the default branch on push.
+# CADENCE IS 15 MINUTES, NOT 5, AND THE REASON IS OBSERVED, NOT ASSUMED. At
+# */5 * * * * this workflow logged zero schedule-triggered runs in four hours while every
+# push and workflow_dispatch run on the same file succeeded - GitHub documents schedules as
+# best-effort, and a request for 288 runs a day is the first thing a best-effort scheduler
+# drops. Whether */15 actually fires is still being measured; until it does, treat the
+# cadence as unconfirmed and use "Run workflow" for a pass you can see happen.
+#
+# Slower polling does not cost signal fidelity here, because intraday_mr returns a STATE,
+# not a one-bar event: z beyond dev_k, RSI(2) still under 20, hourly trend still intact,
+# still inside the session window. Those conditions survive for many consecutive bars, so a
+# pass 15 minutes late still finds the flush in progress. What a 15-minute cadence costs is
+# up to 15 minutes of price - which is why every ticket prints its own signal-bar age
+# instead of pretending the entry is fresh.
 name: live-5m-monitor
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "*/15 * * * *"
   workflow_dispatch:
   push:
     branches: [main]
