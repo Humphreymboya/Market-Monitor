@@ -1,16 +1,4 @@
 {
- "EURAUD": {
-  "cost_r": 0.04072424611897892,
-  "dir": 1,
-  "entry": 1.6309700012207031,
-  "lots": 0.06569883377299819,
-  "max_bars": 72,
-  "sd": 0.011295482270097173,
-  "signal": 1.6311299800872803,
-  "since": "2026-11-17 10:50:00+00:00",
-  "stop": 1.6196745189506059,
-  "target": 1.6330467735727627
- },
  "_outcomes": [
   {
    "detail": "price back at the mean at 2026-11-06 17:35:00+00:00",
@@ -22,6 +10,12 @@
    "detail": "price back at the mean at 2026-11-09 23:00:00+00:00",
    "pair": "EURAUD",
    "r": -0.006,
+   "why": "TARGET"
+  },
+  {
+   "detail": "price back at the mean at 2026-11-17 15:20:00+00:00",
+   "pair": "EURAUD",
+   "r": 0.063,
    "why": "TARGET"
   }
  ]
